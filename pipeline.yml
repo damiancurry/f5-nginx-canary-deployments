@@ -2,41 +2,41 @@ resources:
   - name: gitRepo
     type: GitRepo
     configuration:
-      path: jfrogtraining/aws-eks-workshop
+      path: jfrogtraining/f5-nginx-canary-deployments
       gitProvider: jefferyfryGithub
       branches:
         include: master
-  - name: workshop_app_image
+  - name: demo_app_image
     type: Image
     configuration:
       registry: PartnershipArtifactory
-      sourceRepository: workshop-docker-local
-      imageName: partnership-workshop-docker.jfrog.io/workshop-app
+      sourceRepository: demo-docker-local
+      imageName: partnership-demo-docker.jfrog.io/demo-app
       imageTag: ${run_number}
       autoPull: true
-  - name: workshop_build_info
+  - name: demo_build_info
     type: Buildinfo
     configuration:
       sourceArtifactory: PartnershipArtifactory
-      buildName: workshop_build
+      buildName: demo_build
       buildNumber: ${run_number}
-  - name: promoted_workshop_build_info
+  - name: promoted_demo_build_info
     type: Buildinfo
     configuration:
       sourceArtifactory: PartnershipArtifactory
-      buildName: workshop_build
+      buildName: demo_build
       buildNumber: ${run_number}
 
 pipelines:
-  - name: workshop_app_build
+  - name: demo_app_build
     steps:
       - name: docker_build
         type: DockerBuild
         configuration:
           affinityGroup: docker_build
-          dockerFileLocation: workshop-app
+          dockerFileLocation: demo-app
           dockerFileName: Dockerfile
-          dockerImageName: partnership-workshop-docker.jfrog.io/workshop-app
+          dockerImageName: partnership-demo-docker.jfrog.io/demo-app
           dockerImageTag: ${run_number}
           inputResources:
             - name: gitRepo
@@ -45,9 +45,9 @@ pipelines:
         execution:
           onStart:
             - cd $res_gitRepo_resourcePath
-            - sed "s|Num|${run_number}|g" $res_gitRepo_resourcePath/workshop-app/src/app/app.component.html > $res_gitRepo_resourcePath/workshop-app/src/app/app.component.html.update
-            - mv $res_gitRepo_resourcePath/workshop-app/src/app/app.component.html $res_gitRepo_resourcePath/workshop-app/src/app/app.component.html.orig
-            - mv $res_gitRepo_resourcePath/workshop-app/src/app/app.component.html.update $res_gitRepo_resourcePath/workshop-app/src/app/app.component.html
+            - sed "s|Num|${run_number}|g" $res_gitRepo_resourcePath/demo-app/src/app/app.component.html > $res_gitRepo_resourcePath/demo-app/src/app/app.component.html.update
+            - mv $res_gitRepo_resourcePath/demo-app/src/app/app.component.html $res_gitRepo_resourcePath/demo-app/src/app/app.component.html.orig
+            - mv $res_gitRepo_resourcePath/demo-app/src/app/app.component.html.update $res_gitRepo_resourcePath/demo-app/src/app/app.component.html
           onSuccess:
             - echo "Congrats The Docker image was built!"
       - name: docker_push
@@ -56,26 +56,26 @@ pipelines:
           affinityGroup: docker_build
           autoPublishBuildInfo: true
           forceXrayScan: true
-          targetRepository: workshop-docker-local
+          targetRepository: demo-docker-local
           integrations:
             - name:  PartnershipArtifactory
           inputSteps:
             - name: docker_build
           outputResources:
-            - name: workshop_app_image
-            - name: workshop_build_info
+            - name: demo_app_image
+            - name: demo_build_info
       - name: docker_promote
         type: PromoteBuild
         configuration:
-          targetRepository:      workshop-docker-prod-local
+          targetRepository:      demo-docker-prod-local
           includeDependencies:   true
           status:                Passed
           comment:               Artifact passed Xray Scan
           copy:                  true
           inputResources:
-            - name: workshop_build_info
+            - name: demo_build_info
           outputResources:
-            - name: promoted_workshop_build_info
+            - name: promoted_demo_build_info
       - name: eks_deploy
         type: Bash
         configuration:
@@ -94,10 +94,10 @@ pipelines:
             - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
             - chmod +x ./aws-iam-authenticator
             - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-            - kubectl create namespace aws-eks-workshop || true
-            - sed "s|imageName|partnership-workshop-docker.jfrog.io/workshop-app:${run_number}|g" workshop-app/deployment.yml > my-deployment.yaml
+            - kubectl create namespace f5-nginx-canary-deployments || true
+            - sed "s|imageName|partnership-demo-docker.jfrog.io/demo-app:${run_number}|g" demo-app/deployment.yml > my-deployment.yaml
             - cat my-deployment.yaml
-            - kubectl apply -f my-deployment.yaml --namespace aws-eks-workshop
-            - while [ -z "$url" ]; do url=$(kubectl describe service workshop-app --namespace aws-eks-workshop | grep 'LoadBalancer Ingress:' | awk '{printf "https://%s",$3;}'); sleep 2; done
+            - kubectl apply -f my-deployment.yaml --namespace f5-nginx-canary-deployments
+            - while [ -z "$url" ]; do url=$(kubectl describe service demo-app --namespace f5-nginx-canary-deployments | grep 'LoadBalancer Ingress:' | awk '{printf "https://%s",$3;}'); sleep 2; done
             - echo "$url"
-            - echo "Workshop App launched!"
+            - echo "Demo App launched!"
