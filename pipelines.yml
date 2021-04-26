@@ -80,8 +80,8 @@ pipelines:
         type: Bash
         configuration:
           integrations:
-            - name: dcurryaws
-          inputResources:
+            - name: dcurryeks
+            inputResources:
             - name: gitRepo
           inputSteps:
             - name: docker_promote
