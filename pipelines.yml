@@ -11,7 +11,7 @@ resources:
     configuration:
       registry: PartnershipArtifactory
       sourceRepository: demo-docker-local
-      imageName: partnership-demo-docker.jfrog.io/demo-app
+      imageName: f5swampup.jfrog.io/demo-app
       imageTag: ${run_number}
       autoPull: true
   - name: demo_build_info
@@ -36,7 +36,7 @@ pipelines:
           affinityGroup: docker_build
           dockerFileLocation: demo-app
           dockerFileName: Dockerfile
-          dockerImageName: partnership-demo-docker.jfrog.io/demo-app
+          dockerImageName: f5swampup.jfrog.io/demo-app
           dockerImageTag: ${run_number}
           inputResources:
             - name: gitRepo
@@ -95,7 +95,7 @@ pipelines:
             - chmod +x ./aws-iam-authenticator
             - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
             - kubectl create namespace f5-nginx-canary-deployments || true
-            - sed "s|imageName|partnership-demo-docker.jfrog.io/demo-app:${run_number}|g" demo-app/deployment.yml | sed "s|demo-app|demo-app-${run_number}|g" > my-deployment.yaml
+            - sed "s|imageName|f5swampup.jfrog.io/demo-app:${run_number}|g" demo-app/deployment.yml | sed "s|demo-app|demo-app-${run_number}|g" > my-deployment.yaml
             - cat my-deployment.yaml
             - kubectl apply -f my-deployment.yaml --namespace f5-nginx-canary-deployments
             - while [ -z "$url" ]; do url=$(kubectl describe service demo-app --namespace f5-nginx-canary-deployments | grep 'LoadBalancer Ingress:' | awk '{printf "https://%s",$3;}'); sleep 2; done
