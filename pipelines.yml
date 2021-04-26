@@ -81,7 +81,7 @@ pipelines:
         configuration:
           integrations:
             - name: dcurryaws
-	    - name: dcurryeks
+            - name: dcurryeks
           inputResources:
             - name: gitRepo
           inputSteps:
