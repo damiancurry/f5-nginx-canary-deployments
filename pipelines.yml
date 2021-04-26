@@ -2,8 +2,8 @@ resources:
   - name: gitRepo
     type: GitRepo
     configuration:
-      path: jfrogtraining/f5-nginx-canary-deployments
-      gitProvider: jefferyfryGithub
+      path: damiancurry/f5-nginx-canary-deployments
+      gitProvider: dcurry_github
       branches:
         include: master
   - name: demo_app_image
