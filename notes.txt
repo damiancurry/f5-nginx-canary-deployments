@@ -1,0 +1,16 @@
+push out v1 and and run deployment scripts
+ - should we automate this as step zero?
+ - can this be part of the pipeline?
+   - check kubectl to see if demo-app aclready exists?
+Push out v2
+ - this should be a "clean" deployement
+  - Any request coming to the app returns a 200 response code
+ - checks pass and everything promotes without error
+  - chekcs are hitting /200.html, /400.html, /500.html, which all return 200 status
+Push out v3
+ - This creates a "bad" build
+  - extract uri and return the uri as as the http response call
+ - *something* watches for count of 4xx and 5xx errors via promethues(?)
+ - roll back and remove v3
+ Push out "v4"(v2)
+  - 

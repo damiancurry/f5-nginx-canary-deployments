@@ -16,8 +16,6 @@ spec:
           image: imageName # IMPORTANT: Update!
           imagePullPolicy: Always
           ports:
-            - containerPort: 443
-              name: https
             - containerPort: 80
               name: http
 ---
@@ -26,13 +24,9 @@ kind: Service
 metadata:
   labels:
     app:  demo-app
-  name:  demo-app
+  name:  demo-app-svc
 spec:
-  type: LoadBalancer
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
     - name: http
       port: 80
       protocol: TCP

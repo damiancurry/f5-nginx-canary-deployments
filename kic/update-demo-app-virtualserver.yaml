@@ -1,0 +1,23 @@
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: demo-app
+spec:
+  host: demo.example.com
+  upstreams:
+  - name: demo-app-v1
+    service: demo-app-v1-svc
+    port: 80
+  - name: demo-app-v2
+    service: demo-app-v2-svc
+    port: 80
+  routes:
+  - path: /
+    action:
+      splits:
+      - weight: 75
+      action:
+        pass: demo-app-v1
+      - weight: 25
+      action:
+        pass: demo-app-v2
