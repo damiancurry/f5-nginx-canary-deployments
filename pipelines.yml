@@ -1,4 +1,4 @@
-resources:
+esources:
   - name: gitRepo
     type: GitRepo
     configuration:
@@ -80,8 +80,7 @@ pipelines:
         type: Bash
         configuration:
           integrations:
-            - name: jeffAws
-            - name: jeffEksK8s
+            - name: dcurryaws
           inputResources:
             - name: gitRepo
           inputSteps:
