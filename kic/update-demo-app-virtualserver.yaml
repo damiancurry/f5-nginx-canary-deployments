@@ -13,11 +13,10 @@ spec:
     port: 80
   routes:
   - path: /
-    action:
-      splits:
-      - weight: old-weight
-        action:
-          pass: existing-svc
-      - weight: new-weight
-        action:
-          pass: new-svc
+    splits:
+    - weight: old-weight
+      action:
+        pass: existing-svc
+    - weight: new-weight
+      action:
+        pass: new-svc
