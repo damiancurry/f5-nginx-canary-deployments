@@ -96,28 +96,29 @@ pipelines:
             - chmod +x ./aws-iam-authenticator
             - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
             - kubectl create namespace f5-nginx-canary-deployments || true
-            #- sed "s|imageName|f5swampup.jfrog.io/swampup-docker/demo-app:${run_number}|g" demo-app/deployment.yml | sed "s|demo-app-svc|demo-app-${run_number}|g" > my-deployment.yaml
-            - sed "s|imageName|f5swampup.jfrog.io/swampup-docker/demo-app:${run_number}|g" demo-app/deployment.yml > my-deployment.yaml
+            - sed "s|imageName|f5swampup.jfrog.io/swampup-docker/demo-app:${run_number}|g" demo-app/deployment.yml | sed "s|appname|demo-app-${run_number}|g" | sed "s|svcname|demo-app-svc-${run_number}" > my-deployment.yaml
             - cat my-deployment.yaml
             - kubectl apply -f my-deployment.yaml --namespace f5-nginx-canary-deployments
             - while [ -z "$url" ]; do url=$(kubectl describe service demo-app --namespace f5-nginx-canary-deployments | grep 'LoadBalancer Ingress:' | awk '{printf "https://%s",$3;}'); sleep 2; done
             - echo "$url"
-          #onSuccess:
+          onSuccess:
             - echo "Demo App ${run_number} service deployed!"
-      #- name: ingress_deploy
-      #  type: Bash
-      #  configuration:
-      #    integrations:
-      #      - name: dcurryaws
-      #      - name: dcurryeks
-      #    inputResources:
-      #      - name: gitRepo
-      #    inputSteps:
-      #      - name: eks_deploy
-      #  execution:
-      #    onExecute:
-      #      - cd $res_gitRepo_resourcePath
-      #      - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
-      #      - chmod +x ./aws-iam-authenticator
-      #      - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-      #      - kubectl 
+      - name: ingress_deploy
+        type: Bash
+        configuration:
+          integrations:
+            - name: dcurryaws
+            - name: dcurryeks
+          inputResources:
+            - name: gitRepo
+          inputSteps:
+            - name: eks_deploy
+        execution:
+          onExecute:
+            - cd $res_gitRepo_resourcePath
+            - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
+            - chmod +x ./aws-iam-authenticator
+            - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+            - export new_weight="25"; export old_weight="75"; export old_svc=`kubectl describe virtualserver demo-app -n f5-nginx-canary-deployments | grep Service | awk '{ print $2}'` && sed "s|existing-svc|${old_svc}|g" kic/update-demo-app-virtualserver.yaml | sed "s|new-svc|demo-app-svc-${run_number}|g" | sed "s|new-weight|${new_weight}|g" | sed "s|old-weight|${old_weight}|g" > update-demo-app-virtualserver.yaml
+            - cat update-demo-app-virtualserver.yaml
+            - kubectl apply -f update-demo-app-virtualserver.yaml --namespace f5-nginx-canary-deployments

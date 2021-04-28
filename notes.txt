@@ -14,3 +14,17 @@ Push out v3
  - roll back and remove v3
  Push out "v4"(v2)
   - 
+
+
+baseline app is deployed
+ demo-app-1 deployment created
+ demo-app-svc-1 svc created
+ demo.example.com virtual server created
+ 
+deploy v2
+ demo-app-2 deployment created
+ demo-app-svc-2 svc created
+ check demo virtualserver, extract existing config and apply it to template
+  - kubectl describe virtualserver demo-app -n f5-nginx-canary-deployments | grep Service
+  - if it returns 2 services, must be a running deploy?  then fail and return error
+  - 

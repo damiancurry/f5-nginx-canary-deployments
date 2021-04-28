@@ -5,19 +5,19 @@ metadata:
 spec:
   host: demo.example.com
   upstreams:
-  - name: demo-app-v1
-    service: demo-app-v1-svc
+  - name: existing-svc
+    service: existing-svc
     port: 80
-  - name: demo-app-v2
-    service: demo-app-v2-svc
+  - name: new-svc
+    service: new-svc
     port: 80
   routes:
   - path: /
     action:
       splits:
-      - weight: 75
+      - weight: old-weight
       action:
-        pass: demo-app-v1
-      - weight: 25
+        pass: existing-svc
+      - weight: new-weight
       action:
-        pass: demo-app-v2
+        pass: new-svc
