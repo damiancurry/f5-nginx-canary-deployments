@@ -99,8 +99,8 @@ pipelines:
             - sed "s|imageName|f5swampup.jfrog.io/swampup-docker/demo-app:${run_number}|g" demo-app/deployment.yml | sed "s|appname|demo-app-${run_number}|g" | sed "s|svcname|demo-app-svc-${run_number}|g" > my-deployment.yaml
             - cat my-deployment.yaml
             - kubectl apply -f my-deployment.yaml --namespace f5-nginx-canary-deployments
-            - while [ -z "$url" ]; do url=$(kubectl describe service demo-app --namespace f5-nginx-canary-deployments | grep 'LoadBalancer Ingress:' | awk '{printf "https://%s",$3;}'); sleep 2; done
-            - echo "$url"
+            #- while [ -z "$url" ]; do url=$(kubectl describe service demo-app-${run_number} --namespace f5-nginx-canary-deployments | grep 'LoadBalancer Ingress:' | awk '{printf "https://%s",$3;}'); sleep 2; done
+            #- echo "$url"
           onSuccess:
             - echo "Demo App ${run_number} service deployed!"
       - name: ingress_deploy
