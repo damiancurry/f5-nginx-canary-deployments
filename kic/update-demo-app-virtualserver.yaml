@@ -16,8 +16,8 @@ spec:
     action:
       splits:
       - weight: old-weight
-      action:
-        pass: existing-svc
+        action:
+          pass: existing-svc
       - weight: new-weight
-      action:
-        pass: new-svc
+        action:
+          pass: new-svc
