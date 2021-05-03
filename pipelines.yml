@@ -79,6 +79,7 @@ pipelines:
       - name: eks_deploy
         type: Bash
         configuration:
+          affinityGroup: kic_deploy
           integrations:
             - name: dcurryaws
             - name: dcurryeks
@@ -106,6 +107,9 @@ pipelines:
       - name: ingress_deploy
         type: Bash
         configuration:
+          affinityGroup: kic_deploy
+          inputSteps:
+            - name: eks_deploy
           integrations:
             - name: dcurryaws
             - name: dcurryeks
