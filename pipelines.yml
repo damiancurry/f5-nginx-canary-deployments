@@ -104,25 +104,25 @@ pipelines:
             #- echo "$url"
           onSuccess:
             - echo "Demo App ${run_number} service deployed!"
-      # - name: ingress_deploy
-      #   type: Bash
-      #   configuration:
-      #     affinityGroup: kic_deploy
-      #     inputSteps:
-      #       - name: eks_deploy
-      #     integrations:
-      #       - name: dcurryaws
-      #       - name: dcurryeks
-      #     inputResources:
-      #       - name: gitRepo
-      #   execution:
-      #     onExecute:
-      #       - cd $res_gitRepo_resourcePath
-      #       - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
-      #       - chmod +x ./aws-iam-authenticator
-      #       - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-      #       - bash watch-update.sh $run_number demo-app demo.example.com 
-      #     onSuccess:
-      #       - echo "demo-app release ${run_number} completed successfully"
-      #     onFailure:
-      #       - echo "release failed and has been rolled back.  Please check logs for detailed errors"
+      - name: ingress_deploy
+        type: Bash
+        configuration:
+          affinityGroup: kic_deploy
+          inputSteps:
+            - name: eks_deploy
+          integrations:
+            - name: dcurryaws
+            - name: dcurryeks
+          inputResources:
+            - name: gitRepo
+        execution:
+          onExecute:
+            - cd $res_gitRepo_resourcePath
+            - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
+            - chmod +x ./aws-iam-authenticator
+            - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+            - bash watch-update.sh $run_number demo-app demo.example.com 
+          onSuccess:
+            - echo "demo-app release ${run_number} completed successfully"
+          onFailure:
+            - echo "release failed and has been rolled back.  Please check logs for detailed errors"
