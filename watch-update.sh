@@ -33,6 +33,7 @@ IC_IP=`getent ahostsv4 $ichostname | grep STREAM | head -n 1 | cut -d ' ' -f 1`
 #IC_IP=`dig +short $ichostname`
 #IC_IP=`nslookup $ichostname 8.8.8.8 | grep Address | grep -v 8.8.8.8 | awk {'print $2'}`
 #IC_IP=`host $ichostname | awk {'print $4'}`
+sleep 30
 echo $IC_IP
 headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
 echo $headerreturncode
