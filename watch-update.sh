@@ -49,22 +49,25 @@ fi
 
 
 #assuming checks work, deploy virtualserver with 50/50 split for new/old
-sed "s|existing-svc|${oldsvc}|g" kic/update-demo-app-virtualserver.yaml | sed "s|new-svc|${newsvc}|g" | sed "s|new-weight|${new_weight}|g" | sed "s|old-weight|${old_weight}|g" > update-demo-app-virtualserver.yaml
-cat update-demo-app-virtualserver.yaml
-kubectl apply -f update-demo-app-virtualserver.yaml --namespace $namespace
+sed "s|existing-svc|${oldsvc}|g" kic/weight-split.yaml | sed "s|new-svc|${newsvc}|g" | sed "s|new-weight|${new_weight}|g" | sed "s|old-weight|${old_weight}|g" > weight-split.yaml
+cat weight-split.yaml
+kubectl apply -f weight-split.yaml --namespace $namespace
 
 #create port forwarding tunnel
 ingresspod=`kubectl get pods -A | grep ingress | awk '{print $2}'`
-kubectl port-forward $ingresspod 8080:8080 --namespace=default
+kubectl port-forward $ingresspod 8080:8080 --namespace=default &
+portforwardpid=$!
+sleep 5
 #check the status code returns 
  checkurl="http://localhost:8080/api/6/http/upstreams/vs_${namespace}_${appname}_${newsvc}"
  echo ${checkurl}
 
 #create a variable with the count of 400 errors
-#httperrorcount=`curl -i $checkurl <other values>`
-#hard coded for tests
-httperrorcount=0
-if [ "$httperrorcount" == '0' ]
+http4xxerrorcount=`curl -s $checkurl | jq '.' | grep 4xx | awk {'print $2'} | sed 's|,||g'`
+http5xxerrorcount=`curl -s $checkurl | jq '.' | grep 5xx | awk {'print $2'} | sed 's|,||g'`
+kill $portforwardpid
+
+if [ "$http4xxerrorcount" == '0' &&  "http5xxerrorcount" == '0']
 then
 	echo "live traffic tests passed. Moving on"
 else
