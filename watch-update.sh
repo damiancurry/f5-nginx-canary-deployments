@@ -32,9 +32,9 @@ echo $IC_IP
 headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
 if [ $headerreturncode == '200' ]
 then
-	return "Header tests passed. Moving on"
+	echo "Header tests passed. Moving on"
 else
-	return "Check failed, rolling back version"
+	echo "Check failed, rolling back version"
     sed "s|new-svc|${oldsvc}|g" kic/single-svc-virtualserver.yaml > single-svc-virtualserver.yaml
     kubectl apply -f single-svc-virtualserver.yaml --namespace $namespace
 	exit 1
@@ -59,9 +59,9 @@ kubectl port-forward $ingresspod 8080:8080 --namespace=default
 httperrorcount=0
 if [ "$httperrorcount" == '0' ]
 then
-	return "live traffic tests passed. Moving on"
+	echo "live traffic tests passed. Moving on"
 else
-	return "Check failed, rolling back version"
+	echo "Check failed, rolling back version"
     sed "s|new-svc|${oldsvc}|g" kic/single-svc-virtualserver.yaml > single-svc-virtualserver.yaml
     kubectl apply -f single-svc-virtualserver.yaml --namespace $namespace
 	exit 1
