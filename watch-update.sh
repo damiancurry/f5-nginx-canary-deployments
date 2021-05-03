@@ -35,6 +35,7 @@ IC_IP=`getent ahostsv4 $ichostname | grep STREAM | head -n 1 | cut -d ' ' -f 1`
 #IC_IP=`host $ichostname | awk {'print $4'}`
 echo $IC_IP
 headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
+echo $headerreturncode
 if [ $headerreturncode == '200' ]
 then
 	echo "Header tests passed. Moving on"
