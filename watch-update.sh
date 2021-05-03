@@ -22,7 +22,7 @@ newsvc="${appname}-svc-${runnumber}"
 echo "Deploying ${newsvc} with beta header"
 echo $oldsvc $newsvc
 sed "s|existing-svc|${oldsvc}|g" kic/header-split.yaml | sed "s|new-svc|${newsvc}|g" > header-split.yaml
-kubectl apply -f update-header-split.yaml
+kubectl apply -f header-split.yaml
 
 
 #check app is running fine with custom headers
