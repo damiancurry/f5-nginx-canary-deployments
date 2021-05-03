@@ -1,0 +1,23 @@
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: demo-app
+spec:
+  host: demo.example.com
+  upstreams:
+  - name: existing-svc
+    service: existing-svc
+    port: 80
+  - name: new-svc
+    service: new-svc
+    port: 80
+  routes:
+  - path: /
+    matches:
+    - conditions:
+      - header: release
+        valure: beta
+      action:
+        pass: new-svc
+    action:
+      pass: existing-svc

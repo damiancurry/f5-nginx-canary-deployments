@@ -5,10 +5,11 @@ metadata:
 spec:
   host: demo.example.com
   upstreams:
-  - name: demo-app-v1
-    service: demo-app-svc
+  - name: new-svc
+    service: new-svc
     port: 80
   routes:
   - path: /
     action:
-      pass: demo-app-v1
+      pass: new-svc
+      

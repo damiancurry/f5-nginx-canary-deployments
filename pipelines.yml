@@ -119,42 +119,8 @@ pipelines:
             - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
             - chmod +x ./aws-iam-authenticator
             - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-            - export new_weight="25"; export old_weight="75"; export old_svc=`kubectl describe virtualserver demo-app -n f5-nginx-canary-deployments | grep Service | awk '{ print $2}'` && sed "s|existing-svc|${old_svc}|g" kic/update-demo-app-virtualserver.yaml | sed "s|new-svc|demo-app-svc-${run_number}|g" | sed "s|new-weight|${new_weight}|g" | sed "s|old-weight|${old_weight}|g" > update-demo-app-virtualserver.yaml
-            - cat update-demo-app-virtualserver.yaml
-            - kubectl apply -f update-demo-app-virtualserver.yaml --namespace f5-nginx-canary-deployments
-      # - name: watch_metrics
-      #   type: Bash
-      #   configuration:
-      #     integrations:
-      #       - name: dcurryaws
-      #       - name: dcurryeks
-      #     inputResources:
-      #       - name: gitRepo
-      #     inputSteps: ingress_deploy
-      #   execution:
-      #     onExecute:
-      #       - cd $res_gitRepo_resourcePath
-      #       - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
-      #       - chmod +x ./aws-iam-authenticator
-      #       - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-      - name: virtualserver_equal_weights
-        type: Bash
-        configuration:
-          integrations:
-            - name: dcurryaws
-            - name: dcurryeks
-          inputResources:
-            - name: gitRepo
-          inputSteps:
-            - name: eks_deploy
-        execution:
-          onExecute:
-            - cd $res_gitRepo_resourcePath
-            - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
-            - chmod +x ./aws-iam-authenticator
-            - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-            - export new_weight="50"; export old_weight="50"; export old_svc=`kubectl describe virtualserver demo-app -n f5-nginx-canary-deployments | grep Service | awk '{ print $2}'` && sed "s|existing-svc|${old_svc}|g" kic/update-demo-app-virtualserver.yaml | sed "s|new-svc|demo-app-svc-${run_number}|g" | sed "s|new-weight|${new_weight}|g" | sed "s|old-weight|${old_weight}|g" > update-demo-app-virtualserver.yaml
-            - cat update-demo-app-virtualserver.yaml
-            - kubectl apply -f update-demo-app-virtualserver.yaml --namespace f5-nginx-canary-deployments
-#call watch metrics again?
-      # - name: remove_old_version
+            - bash watch-update.sh $run_number demo-app demo.example.com 
+          onSuccess:
+            - echo "demo-app release ${run_number} completed successfully"
+          onFailure:
+            - echo "release failed and has been rolled back.  Please check logs for detailed errors"
