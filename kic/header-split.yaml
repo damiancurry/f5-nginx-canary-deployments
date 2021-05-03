@@ -16,7 +16,7 @@ spec:
     matches:
     - conditions:
       - header: release
-        valure: beta
+        value: beta
       action:
         pass: new-svc
     action:
