@@ -20,6 +20,7 @@ newsvc="${appname}-svc-${runnumber}"
 
 #deploy virtualserver with header match
 echo "Deploying ${newsvc} with beta header"
+echo $oldsvc $newsvc
 sed "s|existing-svc|${oldsvc}|g" kic/update-header-split.yaml | sed "s|new-svc|${newsvc}|g" > update-header-split.yaml
 kubectl apply -f update-header-split.yaml
 
