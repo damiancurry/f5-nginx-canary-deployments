@@ -27,7 +27,8 @@ kubectl apply -f update-header-split.yaml
 #check app is running fine with custom headers
 ichostname=`kubectl get svc -A | grep ingress | awk '{print $5}'`
 echo $ichostname
-IC_IP=`host $ichostname | awk {'print $4'}`
+IC_IP=`nslookup $ichostname 8.8.8.8 | grep Address | grep -v 8.8.8.8 | awk {'print $2'}`
+#IC_IP=`host $ichostname | awk {'print $4'}`
 echo $IC_IP
 headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
 if [ $headerreturncode == '200' ]
