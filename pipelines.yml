@@ -115,8 +115,6 @@ pipelines:
             - name: dcurryeks
           inputResources:
             - name: gitRepo
-          inputSteps:
-            - name: eks_deploy
         execution:
           onExecute:
             - cd $res_gitRepo_resourcePath
