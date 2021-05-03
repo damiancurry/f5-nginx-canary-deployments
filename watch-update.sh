@@ -25,8 +25,11 @@ kubectl apply -f update-header-split.yaml
 
 
 #check app is running fine with custom headers
-curl -i -H "release: beta" 'http://{$servername}/' | grep HTTP
-headerreturncode=`kubectl apply -f update-demo-app-virtualserver.yaml --namespace $namespace`
+ichostname=`kubectl get svc -A | grep ingress | awk '{print $5}'`
+echo $ichostname
+IC_IP=`host $ichostname | awk {'print $4'}`
+echo $IC_IP
+headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
 if [ $headerreturncode == '200' ]
 then
 	return "Header tests passed. Moving on"
