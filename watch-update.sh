@@ -26,7 +26,7 @@ ichostname=`kubectl get svc -A | grep ingress | awk '{print $5}'`
 echo $ichostname
 IC_IP=`getent ahostsv4 $ichostname | grep STREAM | head -n 1 | cut -d ' ' -f 1`
 
-sleep 30
+sleep 120
 echo $IC_IP
 headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
 echo $headerreturncode
@@ -50,6 +50,13 @@ ingresspod=`kubectl get pods -A | grep ingress | awk '{print $2}'`
 kubectl port-forward $ingresspod 8080:8080 --namespace=default &
 portforwardpid=$!
 sleep 30
+#generate some traffic
+c=1
+while [[ $c -le 50 ]]
+do 
+   curl -i -s -o /dev/null --resolve demo.example.com:80:$IC_IP http://demo.example.com/
+   let c=c+1
+done
 #check the status code returns 
 checkurl="http://localhost:8080/api/6/http/upstreams/vs_${namespace}_${appname}_${newsvc}"
 echo ${checkurl}
