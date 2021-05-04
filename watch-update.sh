@@ -31,10 +31,7 @@ kubectl apply -f header-split.yaml
 ichostname=`kubectl get svc -A | grep ingress | awk '{print $5}'`
 echo $ichostname
 IC_IP=`getent ahostsv4 $ichostname | grep STREAM | head -n 1 | cut -d ' ' -f 1`
-#IC_IP=`ping -c 1 -t 2 $ichostname | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}'`
-#IC_IP=`dig +short $ichostname`
-#IC_IP=`nslookup $ichostname 8.8.8.8 | grep Address | grep -v 8.8.8.8 | awk {'print $2'}`
-#IC_IP=`host $ichostname | awk {'print $4'}`
+
 sleep 30
 echo $IC_IP
 headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
@@ -59,7 +56,7 @@ kubectl apply -f weight-split.yaml --namespace $namespace
 ingresspod=`kubectl get pods -A | grep ingress | awk '{print $2}'`
 kubectl port-forward $ingresspod 8080:8080 --namespace=default &
 portforwardpid=$!
-sleep 5
+sleep 30
 #check the status code returns 
  checkurl="http://localhost:8080/api/6/http/upstreams/vs_${namespace}_${appname}_${newsvc}"
  echo ${checkurl}
@@ -69,8 +66,7 @@ http4xxerrorcount=`curl -s $checkurl | jq '.' | grep 4xx | awk {'print $2'} | se
 http5xxerrorcount=`curl -s $checkurl | jq '.' | grep 5xx | awk {'print $2'} | sed 's|,||g'`
 kill $portforwardpid
 
-#if [[ "$http4xxerrorcount" == '0' &&  "http5xxerrorcount" == '0']]
-if [ "$http4xxerrorcount" or "http5xxerrorcount" == '0' ]
+if [ "$http4xxerrorcount" == '0' ] && [ "http5xxerrorcount" == '0' ]
 then
 	echo "live traffic tests passed. Moving on"
 else
