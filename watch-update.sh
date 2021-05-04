@@ -9,6 +9,8 @@ namespace='f5-nginx-canary-deployments'
 oldsvc=`kubectl describe virtualserver $appname -n $namespace | grep Service | awk '{ print $2}'` 
 newsvc="${appname}-svc-${runnumber}"
 #replacenames='${oldsvc} ${newsvc} '
+oldweight=50
+newweight=50
 
 # #check to see if 2 values were returned by the oldsvc call, means there is already a split configured
 # if []
@@ -49,7 +51,7 @@ fi
 
 
 #assuming checks work, deploy virtualserver with 50/50 split for new/old
-sed "s|existing-svc|${oldsvc}|g" kic/weight-split.yaml | sed "s|new-svc|${newsvc}|g" | sed "s|new-weight|${new_weight}|g" | sed "s|old-weight|${old_weight}|g" > weight-split.yaml
+sed "s|existing-svc|${oldsvc}|g" kic/weight-split.yaml | sed "s|new-svc|${newsvc}|g" | sed "s|new-weight|${newweight}|g" | sed "s|old-weight|${oldweight}|g" > weight-split.yaml
 cat weight-split.yaml
 kubectl apply -f weight-split.yaml --namespace $namespace
 
@@ -67,7 +69,8 @@ http4xxerrorcount=`curl -s $checkurl | jq '.' | grep 4xx | awk {'print $2'} | se
 http5xxerrorcount=`curl -s $checkurl | jq '.' | grep 5xx | awk {'print $2'} | sed 's|,||g'`
 kill $portforwardpid
 
-if [ "$http4xxerrorcount" == '0' &&  "http5xxerrorcount" == '0']
+#if [[ "$http4xxerrorcount" == '0' &&  "http5xxerrorcount" == '0']]
+if [ "$http4xxerrorcount" or "http5xxerrorcount" == '0' ]
 then
 	echo "live traffic tests passed. Moving on"
 else
