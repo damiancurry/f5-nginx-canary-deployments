@@ -55,7 +55,8 @@ sleep 30
 c=1
 while [[ $c -le 50 ]]
 do 
-   curl -i -s -o /dev/null --resolve demo.example.com:80:$IC_IP http://demo.example.com/foo
+   #curl -i -s -o /dev/null --resolve demo.example.com:80:$IC_IP http://demo.example.com/foo
+   curl -i -s -o /dev/null --resolve demo.example.com:80:$IC_IP http://demo.example.com/
    let c=c+1
 done
 #check the status code returns 
