@@ -19,7 +19,7 @@ echo "Deploying ${newsvc} with beta header"
 echo $oldsvc $newsvc
 sed "s|existing-svc|${oldsvc}|g" kic/header-split.yaml | sed "s|new-svc|${newsvc}|g" > header-split.yaml
 cat header-split.yaml
-kubectl apply -f header-split.yaml
+kubectl apply -f header-split.yaml --namespace $namespace
 
 
 #check app is running fine with custom headers
@@ -55,7 +55,7 @@ sleep 30
 c=1
 while [[ $c -le 50 ]]
 do 
-   curl -i -s -o /dev/null --resolve demo.example.com:80:$IC_IP http://demo.example.com/
+   curl -i -s -o /dev/null --resolve demo.example.com:80:$IC_IP http://demo.example.com/foo
    let c=c+1
 done
 #check the status code returns 
