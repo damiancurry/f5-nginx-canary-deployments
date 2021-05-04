@@ -69,7 +69,7 @@ http5xxerrorcount=`curl -s $checkurl | jq '.' | grep 5xx | awk {'print $2'} | se
 echo $http4xxerrorcount $http5xxerrorcount
 kill $portforwardpid
 
-if [ "$http4xxerrorcount" == '0' ] && [ "http5xxerrorcount" == '0' ]
+if [ "$http4xxerrorcount" == '0' ] && [ "$http5xxerrorcount" == '0' ]
 then
 	echo "live traffic tests passed. Moving on"
 else
