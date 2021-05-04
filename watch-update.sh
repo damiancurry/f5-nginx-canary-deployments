@@ -1,7 +1,7 @@
 #!/bin/bash
 #usage: bash watch-update.sh $run_number <app-name> <hostname> <path>
 #usage: bash watch-update.sh $run_number demo-app demo.example.com '/'
-set -x 
+#set -x 
 
 runnumber=$1
 appname=$2
