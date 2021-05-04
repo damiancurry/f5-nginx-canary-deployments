@@ -1,7 +1,7 @@
 #!/bin/bash
 #usage: bash watch-update.sh $run_number <app-name> <hostname> <path>
 #usage: bash watch-update.sh $run_number demo-app demo.example.com '/'
-set -x 
+#set -x 
 
 runnumber=$1
 appname=$2
@@ -13,14 +13,6 @@ newsvc="${appname}-svc-${runnumber}"
 #replacenames='${oldsvc} ${newsvc} '
 oldweight=50
 newweight=50
-
-# #check to see if 2 values were returned by the oldsvc call, means there is already a split configured
-# if []
-# echo "${oldsvc}"
-
-#backup existing config
-#don't need right now, have a prebaked version
-#kubectl describe virtualserver $appname -n $namespace -o yaml > rollbackconfig.yaml
 
 #deploy virtualserver with header match
 echo "Deploying ${newsvc} with beta header"
@@ -48,7 +40,6 @@ else
 	exit 1
 fi
 
-
 #assuming checks work, deploy virtualserver with 50/50 split for new/old
 sed "s|existing-svc|${oldsvc}|g" kic/weight-split.yaml | sed "s|new-svc|${newsvc}|g" | sed "s|new-weight|${newweight}|g" | sed "s|old-weight|${oldweight}|g" > weight-split.yaml
 cat weight-split.yaml
@@ -60,8 +51,8 @@ kubectl port-forward $ingresspod 8080:8080 --namespace=default &
 portforwardpid=$!
 sleep 30
 #check the status code returns 
- checkurl="http://localhost:8080/api/6/http/upstreams/vs_${namespace}_${appname}_${newsvc}"
- echo ${checkurl}
+checkurl="http://localhost:8080/api/6/http/upstreams/vs_${namespace}_${appname}_${newsvc}"
+echo ${checkurl}
 
 #create a variable with the count of 400 errors
 http4xxerrorcount=`curl -s $checkurl | jq '.' | grep 4xx | awk {'print $2'} | sed 's|,||g'`
