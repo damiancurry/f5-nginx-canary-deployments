@@ -1,6 +1,8 @@
 #!/bin/bash
 #usage: bash watch-update.sh $run_number <app-name> <hostname> <path>
 #usage: bash watch-update.sh $run_number demo-app demo.example.com '/'
+set -x 
+
 runnumber=$1
 appname=$2
 servername=$3
@@ -64,6 +66,7 @@ sleep 30
 #create a variable with the count of 400 errors
 http4xxerrorcount=`curl -s $checkurl | jq '.' | grep 4xx | awk {'print $2'} | sed 's|,||g'`
 http5xxerrorcount=`curl -s $checkurl | jq '.' | grep 5xx | awk {'print $2'} | sed 's|,||g'`
+echo $http4xxerrorcount $http5xxerrorcount
 kill $portforwardpid
 
 if [ "$http4xxerrorcount" == '0' ] && [ "http5xxerrorcount" == '0' ]
