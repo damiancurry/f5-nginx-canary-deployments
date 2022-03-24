@@ -65,7 +65,7 @@ kubectl port-forward $ingresspod 8080:8080 --namespace=default &
 portforwardpid=$!
 sleep 15
 #check the status code returns 
-checkurl="http://localhost:8080/api/6/http/upstreams/vs_${namespace}_${appname}_${newsvc}"
+checkurl="http://localhost:8080/api/7/http/upstreams/vs_${namespace}_bank-of-sirius_${newsvc}"
 echo ${checkurl}
 
 #create a variable with the count of 400 errors

@@ -28,54 +28,6 @@ resources:
       buildNumber: ${run_number}
 
 pipelines:
-  - name: demo_app_build
-    steps:
-      - name: docker_build
-        type: DockerBuild
-        configuration:
-          affinityGroup: docker_build
-          dockerFileLocation: demo-app
-          dockerFileName: Dockerfile
-          dockerImageName: f5swampup.jfrog.io/swampup-docker/demo-app
-          dockerImageTag: ${run_number}
-          inputResources:
-            - name: gitRepo
-          integrations:
-            - name: PartnershipArtifactory
-        execution:
-          onStart:
-            - cd $res_gitRepo_resourcePath
-            - sed "s|Num|${run_number}|g" $res_gitRepo_resourcePath/demo-app/src/app/app.component.html > $res_gitRepo_resourcePath/demo-app/src/app/app.component.html.update
-            - mv $res_gitRepo_resourcePath/demo-app/src/app/app.component.html $res_gitRepo_resourcePath/demo-app/src/app/app.component.html.orig
-            - mv $res_gitRepo_resourcePath/demo-app/src/app/app.component.html.update $res_gitRepo_resourcePath/demo-app/src/app/app.component.html
-          onSuccess:
-            - echo "Congrats The Docker image was built!"
-      - name: docker_push
-        type: DockerPush
-        configuration:
-          affinityGroup: docker_build
-          autoPublishBuildInfo: true
-          forceXrayScan: true
-          targetRepository: swampup-docker-local
-          integrations:
-            - name:  PartnershipArtifactory
-          inputSteps:
-            - name: docker_build
-          outputResources:
-            - name: demo_app_image
-            - name: demo_build_info
-      - name: docker_promote
-        type: PromoteBuild
-        configuration:
-          targetRepository:      swampup-docker-prod-local
-          includeDependencies:   true
-          status:                Passed
-          comment:               Artifact passed Xray Scan
-          copy:                  true
-          inputResources:
-            - name: demo_build_info
-          outputResources:
-            - name: promoted_demo_build_info
       - name: eks_deploy
         type: Bash
         configuration:
@@ -93,12 +45,8 @@ pipelines:
             - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
             - chmod +x ./aws-iam-authenticator
             - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-            - kubectl create namespace f5-nginx-canary-deployments || true
-            - sed "s|imageName|f5swampup.jfrog.io/swampup-docker/demo-app:${run_number}|g" demo-app/deployment.yml | sed "s|appname|demo-app-${run_number}|g" | sed "s|svcname|demo-app-svc-${run_number}|g" > my-deployment.yaml
-            #- cat my-deployment.yaml
+            - sed "s|imageName|<update path to container image>:${run_number}|g" kic/deployment.yaml | sed "s|appname|frontend-app-${run_number}|g" | sed "s|svcname|frontend-app-svc-${run_number}|g" > my-deployment.yaml
             - kubectl apply -f my-deployment.yaml --namespace f5-nginx-canary-deployments
-            #- while [ -z "$url" ]; do url=$(kubectl describe service demo-app-${run_number} --namespace f5-nginx-canary-deployments | grep 'LoadBalancer Ingress:' | awk '{printf "https://%s",$3;}'); sleep 2; done
-            #- echo "$url"
           onSuccess:
             - echo "Demo App ${run_number} service deployed!"
       - name: ingress_deploy
@@ -118,8 +66,8 @@ pipelines:
             - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
             - chmod +x ./aws-iam-authenticator
             - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-            - bash watch-update.sh $run_number demo-app demo.example.com 
+            - bash watch-update.sh $run_number frontend-app
           onSuccess:
-            - echo "demo-app release ${run_number} completed successfully"
+            - echo "frontend-app release ${run_number} completed successfully"
           onFailure:
             - echo "release failed and has been rolled back.  Please check logs for detailed errors"
