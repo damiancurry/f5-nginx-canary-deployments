@@ -1,11 +1,11 @@
 apiVersion: k8s.nginx.org/v1
 kind: VirtualServer
 metadata:
-  name: demo-app
+  name: bank-of-sirius
 spec:
-  host: a65075e33155e4d44a3c13b92056a793-284587433.us-west-2.elb.amazonaws.com
+  host: elb-hostname
   tls:
-    secret: bos-secret
+    secret: sirius-secret
     redirect: 
       enable: true
       code: 301
