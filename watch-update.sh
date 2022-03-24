@@ -27,7 +27,7 @@ ichostname=`kubectl get svc -A | grep ingress | awk '{print $5}'`
 echo $ichostname
 IC_IP=`getent ahostsv4 $ichostname | grep STREAM | head -n 1 | cut -d ' ' -f 1`
 
-sleep 60
+sleep 30
 echo $IC_IP
 headerreturncode=`curl -i -s -o /dev/null -w "%{http_code}" -H "release: beta" --resolve demo.example.com:80:$IC_IP http://demo.example.com/`
 echo $headerreturncode
@@ -79,6 +79,7 @@ else
 	exit 1
 fi
 #assuming checks return ok, depricate old version and push all traffic to new
+echo "Rolling back old version of the application"
 sed "s|new-svc|${newsvc}|g" kic/single-svc-virtualserver.yaml > single-svc-virtualserver.yaml
 kubectl apply -f single-svc-virtualserver.yaml --namespace $namespace
 exit 0

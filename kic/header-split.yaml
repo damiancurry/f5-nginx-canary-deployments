@@ -3,7 +3,12 @@ kind: VirtualServer
 metadata:
   name: demo-app
 spec:
-  host: demo.example.com
+  host: a65075e33155e4d44a3c13b92056a793-284587433.us-west-2.elb.amazonaws.com
+  tls:
+    secret: bos-secret
+    redirect: 
+      enable: true
+      code: 301
   upstreams:
   - name: existing-svc
     service: existing-svc

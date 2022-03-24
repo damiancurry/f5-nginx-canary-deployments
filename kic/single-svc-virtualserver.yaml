@@ -1,9 +1,14 @@
 apiVersion: k8s.nginx.org/v1
 kind: VirtualServer
 metadata:
-  name: demo-app
+  name: bank-of-sirius
 spec:
-  host: demo.example.com
+  host: a65075e33155e4d44a3c13b92056a793-284587433.us-west-2.elb.amazonaws.com
+  tls:
+    secret: sirius-secret
+    redirect: 
+      enable: true
+      code: 301
   upstreams:
   - name: new-svc
     service: new-svc
@@ -12,4 +17,3 @@ spec:
   - path: /
     action:
       pass: new-svc
-      
